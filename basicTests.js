@@ -14,4 +14,3 @@ function testIntegerNegation() {
 }
     
 testIntegerNegation()
-

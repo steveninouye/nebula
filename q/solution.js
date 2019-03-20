@@ -1,9 +1,21 @@
 const Queue = require('queue-fifo');
+var sha256 = require('hash.js/lib/hash/sha/256');
 
 const bitNegate = (number) => ~number;
-const hash = (str) => {
-  
-}
+const createHashValue = (msg) => {
+  const str = msg._hash;
+  msg['hash'] = sha256()
+    .update(str)
+    .digest('hex');
+};
+const reverseStr = (msg, key) => {
+  const str = msg[key];
+  let newStr = '';
+  for (var i = str.length - 1; i >= 0; i--) {
+    newStr += str[i];
+  }
+  msg[key] = newStr;
+};
 
 class MessageDeliveryService {
   constructor() {
@@ -18,21 +30,38 @@ class MessageDeliveryService {
   }
 
   enqueue(msg) {
+    let queueNum = 4;
     for (let key in msg) {
-      const value = msg[key];
-      if (typeof value === 'string') {
-        if (value.includes('Nebula')) msg[key] = value.reverse();
-        if (key === '_hash') hash(msg);
-      } else if (Number.isInteger(value)) {
-        msg[key] = bitNegate(value);
-      }
+      this.alterMessage(msg, key);
+      let keyQueueNum = this.delegateQueue(msg, key);
+      if (keyQueueNum < queueNum) queueNum = keyQueueNum;
     }
+    this.queues[queueNum].enqueue(msg);
   }
 
   next(queueNumber) {
     const queue = this.queues[queueNumber];
     if (queue.isEmpty()) throw `There is nothing in in queue ${queueNumber}`;
-    return this.msgQueue.shift();
+    return queue.dequeue();
+  }
+
+  alterMessage(msg, key) {
+    const value = msg[key];
+    if (typeof value === 'string') {
+      if (key[0] !== '_' && value.includes('Nebula')) reverseStr(msg, key);
+      if (key === '_hash') createHashValue(msg);
+    } else if (key[0] !== '_' && Number.isInteger(value)) {
+      msg[key] = bitNegate(value);
+    }
+  }
+
+  delegateQueue(msg, key) {
+    const value = msg[key];
+    if (key === '_special') return 0;
+    if (key === '_hash') return 1;
+    if (key[0] !== '_' && value.includes('alubeN')) return 2;
+    if (key[0] !== '_' && Number.isInteger(value)) return 3;
+    return 4;
   }
 }
 

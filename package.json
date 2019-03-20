@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/steveninouye/nebula#readme",
   "dependencies": {
+    "hash.js": "^1.1.7",
     "queue-fifo": "^0.2.5"
   }
 }
