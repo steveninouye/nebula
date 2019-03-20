@@ -1,21 +1,5 @@
 const Queue = require('queue-fifo');
-var sha256 = require('hash.js/lib/hash/sha/256');
-
-const bitNegate = (number) => ~number;
-const createHashValue = (msg) => {
-  const str = msg._hash;
-  msg['hash'] = sha256()
-    .update(str)
-    .digest('hex');
-};
-const reverseStr = (msg, key) => {
-  const str = msg[key];
-  let newStr = '';
-  for (var i = str.length - 1; i >= 0; i--) {
-    newStr += str[i];
-  }
-  msg[key] = newStr;
-};
+const { bitwiseNegate, createHashValue, reverseStr } = require('./services');
 
 class MessageDeliveryService {
   constructor() {
@@ -23,12 +7,23 @@ class MessageDeliveryService {
     this.createQueues();
   }
 
+  /**
+   *
+   *
+   * @memberof MessageDeliveryService
+   */
   createQueues() {
     for (let i = 0; i < 5; i++) {
       this.queues.push(new Queue());
     }
   }
 
+  /**
+   * Take a JSON message, alters the message and adds message to proper queue
+   *
+   * @param {Object} msg (JSON message)
+   * @memberof MessageDeliveryService
+   */
   enqueue(msg) {
     let queueNum = 4;
     for (let key in msg) {
@@ -39,22 +34,45 @@ class MessageDeliveryService {
     this.queues[queueNum].enqueue(msg);
   }
 
+  /**
+   * Takes a queue number and returns a message
+   *
+   * @param {Number} queueNumber
+   * @returns {Object} (JSON message)
+   * @memberof MessageDeliveryService
+   */
   next(queueNumber) {
     const queue = this.queues[queueNumber];
     if (queue.isEmpty()) throw `There is nothing in in queue ${queueNumber}`;
     return queue.dequeue();
   }
 
+  /**
+   * Alters message received from #enqueue
+   *
+   * @param {Object} msg
+   * @param {String} key
+   * @memberof MessageDeliveryService
+   */
   alterMessage(msg, key) {
     const value = msg[key];
     if (typeof value === 'string') {
       if (key[0] !== '_' && value.includes('Nebula')) reverseStr(msg, key);
       if (key === '_hash') createHashValue(msg);
     } else if (key[0] !== '_' && Number.isInteger(value)) {
-      msg[key] = bitNegate(value);
+      msg[key] = bitwiseNegate(value);
     }
   }
 
+  /**
+   * Determines which queue to place message in depending on
+   * the current key being examined
+   *
+   * @param {Object} msg
+   * @param {String} key
+   * @returns {Number}
+   * @memberof MessageDeliveryService
+   */
   delegateQueue(msg, key) {
     const value = msg[key];
     if (key === '_special') return 0;
