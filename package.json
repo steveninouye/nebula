@@ -1,0 +1,22 @@
+{
+  "name": "backend-interview-question",
+  "version": "1.0.0",
+  "description": "Your challenge is to implement a simple message delivery service called `q`. This service accepts (enqueues) messages through a single interface. It applies a set of transformation rules to the data, then chooses which output queue should get the message based on a series of dispatching rules. It also delivers the parts of multi-message sequences in order.",
+  "main": "basicTests.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/steveninouye/nebula.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/steveninouye/nebula/issues"
+  },
+  "homepage": "https://github.com/steveninouye/nebula#readme",
+  "dependencies": {
+    "queue-fifo": "^0.2.5"
+  }
+}
