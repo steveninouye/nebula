@@ -5,6 +5,7 @@ class MessageDeliveryService {
   constructor() {
     this.queues = [];
     this.createQueues();
+    this.sequences = {};
   }
 
   /**
