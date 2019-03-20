@@ -1,10 +1,10 @@
 const Queue = require('queue-fifo');
 
-// This is an example of a terrible "solution" to the Q problem.
+const bitNegate = (number) => ~number;
+const hash = (str) => {
+  
+}
 
-// You may delete all of the contents of this file to start fresh.
-// Please do be sure, however, that your solution provides at least these
-// functions so that we can test it.
 class MessageDeliveryService {
   constructor() {
     this.queues = [];
@@ -18,9 +18,20 @@ class MessageDeliveryService {
   }
 
   enqueue(msg) {
-    this.msgQueue.push(msg);
+    for (let key in msg) {
+      const value = msg[key];
+      if (typeof value === 'string') {
+        if (value.includes('Nebula')) msg[key] = value.reverse();
+        if (key === '_hash') hash(msg);
+      } else if (Number.isInteger(value)) {
+        msg[key] = bitNegate(value);
+      }
+    }
   }
+
   next(queueNumber) {
+    const queue = this.queues[queueNumber];
+    if (queue.isEmpty()) throw `There is nothing in in queue ${queueNumber}`;
     return this.msgQueue.shift();
   }
 }
