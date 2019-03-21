@@ -16,4 +16,20 @@ describe('Services', () => {
       expect(bitwiseNegate(1)).toBe(-2);
     });
   });
+  describe('#createHashValue', () => {
+    let hashedMsg;
+    beforeEach(() => {
+      const msg = { _hash: 'test' };
+      createHashValue(msg);
+      hashedMsg = msg;
+    });
+    it('should be defined', () => {
+      expect(createHashValue).toBeDefined();
+    });
+    it('should hash the _hash key in the message and assign the hashed value to key of hash', () => {
+      expect(hashedMsg.hash).toBeDefined();
+      expect(typeof hashedMsg.hash).toBe('string');
+      expect(hashedMsg.hash).toHaveLength(64);
+    });
+  });
 });
