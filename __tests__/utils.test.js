@@ -1,5 +1,5 @@
-const { createQueues } = require('../q/utils');
 const Queue = require('queue-fifo');
+const { createQueues } = require('../q/utils');
 
 describe('Utils', () => {
   describe('#createQueues', () => {
