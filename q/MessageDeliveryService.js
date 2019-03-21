@@ -27,13 +27,13 @@ class MessageDeliveryService {
   /**
    * Takes a queue number and returns from corresponding queue
    *
-   * @param {Number} queueNumber
+   * @param {Number} queueNum
    * @returns {Object} (JSON message)
    * @memberof MessageDeliveryService
    */
-  next(queueNumber) {
-    const queue = this.queues[queueNumber];
-    if (queue.isEmpty()) throw `There is nothing in in queue ${queueNumber}`;
+  next(queueNum) {
+    const queue = this.queues[queueNum];
+    if (queue.isEmpty()) throw `There is nothing in in queue ${queueNum}`;
     const msg = queue.dequeue();
     if (msg._sequence !== undefined) this.checkMaxPartNum(msg);
     return msg;

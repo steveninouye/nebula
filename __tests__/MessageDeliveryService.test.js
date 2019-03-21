@@ -125,6 +125,20 @@ describe('MessageDeliveryService', () => {
       expect(typeof svc.next).toBe('function');
     });
 
+    it('should delete the sequence from the sequences store if all the messages have been dequeued to prevent memory leak', () => {
+      const msg1 = { _sequence: 'test', _part: 1, _special: 'test' };
+      const msg2 = { _sequence: 'test', _part: 0, _hash: 'test' };
+      const msg3 = { _sequence: 'test', _part: 2, val: 'Nebula' };
+      svc.enqueue(msg1);
+      svc.enqueue(msg2);
+      svc.enqueue(msg3);
+      svc.next(1);
+      svc.next(1);
+      expect(svc.sequences.test).toBeDefined();
+      svc.next(1);
+      expect(svc.sequences.test).not.toBeDefined();
+    });
+
     it('should throw an error if there is nothing in the queue', () => {
       expect(() => svc.next(0)).toThrow();
       expect(() => svc.next(1)).toThrow();
