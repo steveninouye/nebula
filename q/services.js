@@ -1,6 +1,25 @@
 const sha256 = require('hash.js/lib/hash/sha/256');
 
 /**
+ * Sources message to corresponding services
+ *
+ * @param {Object} msg
+ * @param {String} key
+ * @memberof MessageDeliveryService
+ */
+const alterMessage = (msg) => {
+  for (let key in msg) {
+    const value = msg[key];
+    if (typeof value === 'string') {
+      if (key[0] !== '_' && value.includes('Nebula')) reverseStr(msg, key);
+      if (key === '_hash') createHashValue(msg);
+    } else if (key[0] !== '_' && Number.isInteger(value)) {
+      msg[key] = bitwiseNegate(value);
+    }
+  }
+};
+
+/**
  * Returns bitwise negation of integer
  *
  * @param {Number} number
@@ -66,6 +85,7 @@ const getQueueNumber = (msg) => {
 };
 
 module.exports = {
+  alterMessage,
   bitwiseNegate,
   createHashValue,
   reverseStr,

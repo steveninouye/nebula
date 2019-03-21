@@ -1,10 +1,5 @@
 const { createQueues } = require('./utils');
-const {
-  bitwiseNegate,
-  createHashValue,
-  reverseStr,
-  getQueueNumber
-} = require('./services');
+const { getQueueNumber, alterMessage } = require('./services');
 
 class MessageDeliveryService {
   constructor() {
@@ -19,7 +14,7 @@ class MessageDeliveryService {
    * @memberof MessageDeliveryService
    */
   enqueue(msg) {
-    this.alterMessage(msg);
+    alterMessage(msg);
     if (msg['_sequence'] === undefined) {
       const queueNum = getQueueNumber(msg);
       this.queues[queueNum].enqueue(msg);
@@ -79,25 +74,6 @@ class MessageDeliveryService {
       this.queues[queueNum].enqueue(sequence[partNum]);
       delete sequence[partNum];
       sequence.nextPartNum = ++partNum;
-    }
-  }
-
-  /**
-   * Alters message received from #enqueue
-   *
-   * @param {Object} msg
-   * @param {String} key
-   * @memberof MessageDeliveryService
-   */
-  alterMessage(msg) {
-    for (let key in msg) {
-      const value = msg[key];
-      if (typeof value === 'string') {
-        if (key[0] !== '_' && value.includes('Nebula')) reverseStr(msg, key);
-        if (key === '_hash') createHashValue(msg);
-      } else if (key[0] !== '_' && Number.isInteger(value)) {
-        msg[key] = bitwiseNegate(value);
-      }
     }
   }
 
