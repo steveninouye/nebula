@@ -1,27 +1,16 @@
-const Queue = require('queue-fifo');
+const { createQueues } = require('./utils');
 const {
   bitwiseNegate,
   createHashValue,
   reverseStr,
-  getQueueNumber
+  getQueueNumber,
+  createQueues
 } = require('./services');
 
 class MessageDeliveryService {
   constructor() {
-    this.queues = [];
-    this.createQueues();
+    this.queues = createQueues();
     this.sequences = {};
-  }
-
-  /**
-   *
-   *
-   * @memberof MessageDeliveryService
-   */
-  createQueues() {
-    for (let i = 0; i < 5; i++) {
-      this.queues.push(new Queue());
-    }
   }
 
   /**

@@ -1,4 +1,4 @@
-var sha256 = require('hash.js/lib/hash/sha/256');
+const sha256 = require('hash.js/lib/hash/sha/256');
 
 /**
  * Returns bitwise negation of integer
@@ -65,4 +65,10 @@ const getQueueNumber = (msg) => {
   return queueNum;
 };
 
-module.exports = { bitwiseNegate, createHashValue, reverseStr, getQueueNumber };
+module.exports = {
+  bitwiseNegate,
+  createHashValue,
+  reverseStr,
+  getQueueNumber,
+  createQueues
+};
