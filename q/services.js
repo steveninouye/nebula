@@ -52,7 +52,7 @@ const getQueueNumber = (msg) => {
     for (let key in msg) {
       const value = msg[key];
       if (key[0] !== '_') {
-        if (value.includes('alubeN')) {
+        if (typeof value === 'string' && value.includes('alubeN')) {
           queueNum = 2;
           break;
         }
