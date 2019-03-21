@@ -1,4 +1,5 @@
 const {
+  alterMessage,
   bitwiseNegate,
   createHashValue,
   reverseStr,
@@ -6,6 +7,39 @@ const {
 } = require('../q/services');
 
 describe('Services', () => {
+  describe('#alterMessage', () => {
+    it('should be defined', () => {
+      expect(alterMessage).toBeDefined();
+    });
+    it('should reverse the value if the value contains "Nebula"', () => {
+      const msg1 = { val: 'Nebula' };
+      const msg2 = { val: 'NNNebulaaaa' };
+      alterMessage(msg1);
+      expect(msg1.val).toBe('alubeN');
+      alterMessage(msg2);
+      expect(msg2.val).toBe('aaaalubeNNN');
+    });
+    it('should hash value under _hash key and assign it to hash key in message', () => {
+      const msg1 = { _hash: 'Nebula' };
+      const msg2 = { _hash: 'NNNebulaaaa' };
+      alterMessage(msg1);
+      expect(msg1._hash).toBe('Nebula');
+      expect(typeof msg1.hash).toBe('string');
+      expect(msg1.hash).toHaveLength(64);
+      alterMessage(msg2);
+      expect(msg2._hash).toBe('NNNebulaaaa');
+      expect(typeof msg2.hash).toBe('string');
+      expect(msg2.hash).toHaveLength(64);
+    });
+    it('should bitwise negate values that are integers', () => {
+      const msg1 = { val: 15 };
+      const msg2 = { val: 512 };
+      alterMessage(msg1);
+      expect(msg1.val).toBe(-16);
+      alterMessage(msg2);
+      expect(msg2.val).toBe(-513);
+    });
+  });
   describe('#bitwiseNegate', () => {
     it('should be defined', () => {
       expect(bitwiseNegate).toBeDefined();
