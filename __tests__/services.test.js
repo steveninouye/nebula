@@ -7,6 +7,6 @@ const {
 
 describe('Services', () => {
   it('should be defined', () => {
-    expect(createQueues).toBeDefined();
+    expect(bitwiseNegate).toBeDefined();
   });
 });
