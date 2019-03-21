@@ -156,6 +156,19 @@ describe('MessageDeliveryService', () => {
       expect(svc.queues[4].isEmpty()).toBe(true);
     });
 
+    it('should add parts of a sequence to the queue in order', () => {
+      const msg1 = { _sequence: 'test', _part: 1, _special: 'test1' };
+      svc.enqueue(msg1);
+      expect(() => svc.next(0)).toThrow();
+      const msg2 = { _sequence: 'test', _part: 0, _special: 'test2' };
+      svc.enqueue(msg2);
+      expect(svc.next(0)._special).toBe('test2');
+      const msg3 = { _sequence: 'test', _part: 2, _special: 'test3' };
+      svc.enqueue(msg3);
+      expect(svc.next(0)._special).toBe('test1');
+      expect(svc.next(0)._special).toBe('test3');
+    });
+
     it('should delete the sequence from the sequences store if all the messages have been dequeued to prevent memory leak', () => {
       const msg1 = { _sequence: 'test', _part: 1, _special: 'test' };
       const msg2 = { _sequence: 'test', _part: 0, _hash: 'test' };
