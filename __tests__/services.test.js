@@ -32,4 +32,22 @@ describe('Services', () => {
       expect(hashedMsg.hash).toHaveLength(64);
     });
   });
+  describe('#reverseStr', () => {
+    let reversedMsg;
+    beforeEach(() => {
+      const msg = { a: 'abc', b: '', c: 'abcdefg' };
+      reverseStr(msg, 'a');
+      reverseStr(msg, 'b');
+      reverseStr(msg, 'c');
+      reversedMsg = msg;
+    });
+    it('should be defined', () => {
+      expect(reverseStr).toBeDefined();
+    });
+    it('should reverse the string and reassign the reversed string to the key in the message', () => {
+      expect(reversedMsg.a).toBe('cba');
+      expect(reversedMsg.b).toBe('');
+      expect(reversedMsg.c).toBe('gfedcba');
+    });
+  });
 });
