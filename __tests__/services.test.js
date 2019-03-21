@@ -1,6 +1,11 @@
-const { createQueues } = require('../q/utils');
+const {
+  bitwiseNegate,
+  createHashValue,
+  reverseStr,
+  getQueueNumber
+} = require('../q/services');
 
-describe('#createQueues', () => {
+describe('Services', () => {
   it('should be defined', () => {
     expect(createQueues).toBeDefined();
   });

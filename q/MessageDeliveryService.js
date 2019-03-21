@@ -3,8 +3,7 @@ const {
   bitwiseNegate,
   createHashValue,
   reverseStr,
-  getQueueNumber,
-  createQueues
+  getQueueNumber
 } = require('./services');
 
 class MessageDeliveryService {
@@ -125,5 +124,6 @@ const getMessageService = () => {
 };
 
 module.exports = {
-  getMessageService
+  getMessageService,
+  MessageDeliveryService
 };

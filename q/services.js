@@ -69,6 +69,5 @@ module.exports = {
   bitwiseNegate,
   createHashValue,
   reverseStr,
-  getQueueNumber,
-  createQueues
+  getQueueNumber
 };

@@ -1,7 +1,7 @@
-const { createQueues } = require('../q/utils');
+const { MessageDeliveryService } = require('../q/MessageDeliveryService');
 
-describe('#createQueues', () => {
+describe('MessageDeliveryService', () => {
   it('should be defined', () => {
-    expect(createQueues).toBeDefined();
+    expect(MessageDeliveryService).toBeDefined();
   });
 });
