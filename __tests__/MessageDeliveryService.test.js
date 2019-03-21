@@ -98,5 +98,24 @@ describe('MessageDeliveryService', () => {
       expect(queue4.dequeue()).toBe(msg5);
       expect(queue4.dequeue()).toBe(msg4);
     });
+
+    it('should alter the message being inserted into the queues', () => {
+      const msg = {
+        _hash: 'test',
+        val: 'Nebula',
+        _val: 'Nebula',
+        num: 4,
+        _num: 5
+      };
+      svc.enqueue(msg);
+      expect(msg._hash).toBe('test');
+      expect(msg.hash).toBeDefined();
+      expect(msg.hash).toHaveLength(64);
+      expect(typeof msg.hash).toBe('string');
+      expect(msg.val).toBe('alubeN');
+      expect(msg._val).toBe('Nebula');
+      expect(msg.num).toBe(-5);
+      expect(msg._num).toBe(5);
+    });
   });
 });
