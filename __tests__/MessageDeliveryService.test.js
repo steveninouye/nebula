@@ -125,6 +125,37 @@ describe('MessageDeliveryService', () => {
       expect(typeof svc.next).toBe('function');
     });
 
+    it('should return the correct message in the queue', () => {
+      const msg1 = { _special: 'test1' };
+      const msg2 = { _special: 'test2' };
+      const msg3 = { _hash: 'test1' };
+      const msg4 = { _hash: 'test2' };
+      const msg5 = { val: 'Nebulaa' };
+      const msg6 = { val: 'Nebulab' };
+      const msg7 = { val: 3 };
+      const msg8 = { val: 8 };
+      const msg9 = { _val: 2 };
+      const msg10 = { _val: 6 };
+      [msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8, msg9, msg10].forEach(
+        (msg) => svc.enqueue(msg)
+      );
+      expect(svc.next(0)._special).toBe('test1');
+      expect(svc.next(0)._special).toBe('test2');
+      expect(svc.queues[0].isEmpty()).toBe(true);
+      expect(svc.next(1)._hash).toBe('test1');
+      expect(svc.next(1)._hash).toBe('test2');
+      expect(svc.queues[1].isEmpty()).toBe(true);
+      expect(svc.next(2).val).toBe('aalubeN');
+      expect(svc.next(2).val).toBe('balubeN');
+      expect(svc.queues[2].isEmpty()).toBe(true);
+      expect(svc.next(3).val).toBe(-4);
+      expect(svc.next(3).val).toBe(-9);
+      expect(svc.queues[3].isEmpty()).toBe(true);
+      expect(svc.next(4)._val).toBe(2);
+      expect(svc.next(4)._val).toBe(6);
+      expect(svc.queues[4].isEmpty()).toBe(true);
+    });
+
     it('should delete the sequence from the sequences store if all the messages have been dequeued to prevent memory leak', () => {
       const msg1 = { _sequence: 'test', _part: 1, _special: 'test' };
       const msg2 = { _sequence: 'test', _part: 0, _hash: 'test' };
