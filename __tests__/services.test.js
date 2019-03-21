@@ -39,6 +39,15 @@ describe('Services', () => {
       alterMessage(msg2);
       expect(msg2.val).toBe(-513);
     });
+    it('should ignore keys that start with underscore (except _hash)', () => {
+      const msg1 = { _val: 15, _test: 'Nebula' };
+      const msg2 = { _val: 512 };
+      alterMessage(msg1);
+      expect(msg1._val).toBe(15);
+      expect(msg1._test).toBe('Nebula');
+      alterMessage(msg2);
+      expect(msg2._val).toBe(512);
+    });
   });
   describe('#bitwiseNegate', () => {
     it('should be defined', () => {
