@@ -118,4 +118,19 @@ describe('MessageDeliveryService', () => {
       expect(msg._num).toBe(5);
     });
   });
+
+  describe('#next', () => {
+    it('should be defined', () => {
+      expect(svc.next).toBeDefined();
+      expect(typeof svc.next).toBe('function');
+    });
+
+    it('should throw an error if there is nothing in the queue', () => {
+      expect(() => svc.next(0)).toThrow();
+      expect(() => svc.next(1)).toThrow();
+      expect(() => svc.next(2)).toThrow();
+      expect(() => svc.next(3)).toThrow();
+      expect(() => svc.next(4)).toThrow();
+    });
+  });
 });
