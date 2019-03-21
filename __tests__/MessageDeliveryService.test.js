@@ -74,5 +74,29 @@ describe('MessageDeliveryService', () => {
       expect(queues[3].isEmpty()).toBe(true);
       expect(queues[4].isEmpty()).toBe(true);
     });
+
+    it('should add the messages with _sequence key to the queue that _part 0 enqueued to', () => {
+      const msg1 = { _sequence: 'test', _part: 1, _special: 'test' };
+      const msg2 = { _sequence: 'test', _part: 0, _hash: 'test' };
+      const msg3 = { _sequence: 'test', _part: 2, val: 'Nebula' };
+      const msg4 = { _sequence: 'test1', _part: 1, val: 3 };
+      const msg5 = { _sequence: 'test1', _part: 0, val: 3.4 };
+      svc.enqueue(msg1);
+      svc.enqueue(msg2);
+      svc.enqueue(msg3);
+      svc.enqueue(msg4);
+      svc.enqueue(msg5);
+      const { queues } = svc;
+      const queue1 = queues[1];
+      const queue4 = queues[4];
+      expect(queues[0].isEmpty()).toBe(true);
+      expect(queues[2].isEmpty()).toBe(true);
+      expect(queues[3].isEmpty()).toBe(true);
+      expect(queue1.dequeue()).toBe(msg2);
+      expect(queue1.dequeue()).toBe(msg1);
+      expect(queue1.dequeue()).toBe(msg3);
+      expect(queue4.dequeue()).toBe(msg5);
+      expect(queue4.dequeue()).toBe(msg4);
+    });
   });
 });
