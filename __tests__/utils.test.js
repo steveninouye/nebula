@@ -6,6 +6,7 @@ describe('Utils', () => {
     it('should be defined', () => {
       expect(createQueues).toBeDefined();
     });
+
     it('should return an array of 5 instances of Queues', () => {
       const queues = createQueues();
       expect(queues).toHaveLength(5);
