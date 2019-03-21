@@ -36,4 +36,33 @@ const reverseStr = (msg, key) => {
   msg[key] = newStr;
 };
 
-module.exports = { bitwiseNegate, createHashValue, reverseStr };
+/**
+ * Determines which queue to place message in
+ *
+ * @param {Object} msg
+ * @returns {Number}
+ */
+const getQueueNumber = (msg) => {
+  let queueNum = 4;
+  if (msg['_special'] !== undefined) {
+    queueNum = 0;
+  } else if (msg['_hash'] !== undefined) {
+    queueNum = 1;
+  } else {
+    for (let key in msg) {
+      const value = msg[key];
+      if (key[0] !== '_') {
+        if (value.includes('alubeN')) {
+          queueNum = 2;
+          break;
+        }
+        if (Number.isInteger(value)) {
+          queueNum = 3;
+        }
+      }
+    }
+  }
+  return queueNum;
+};
+
+module.exports = { bitwiseNegate, createHashValue, reverseStr, getQueueNumber };

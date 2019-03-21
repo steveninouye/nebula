@@ -1,5 +1,10 @@
 const Queue = require('queue-fifo');
-const { bitwiseNegate, createHashValue, reverseStr } = require('./services');
+const {
+  bitwiseNegate,
+  createHashValue,
+  reverseStr,
+  getQueueNumber
+} = require('./services');
 
 class MessageDeliveryService {
   constructor() {
@@ -26,17 +31,18 @@ class MessageDeliveryService {
    * @memberof MessageDeliveryService
    */
   enqueue(msg) {
-    let queueNum = 4;
-    for (let key in msg) {
-      this.alterMessage(msg, key);
-      let keyQueueNum = this.delegateQueue(msg, key);
-      if (keyQueueNum < queueNum) queueNum = keyQueueNum;
+    this.alterMessage(msg);
+    if (msg['_sequence'] === undefined) {
+      const queueNum = getQueueNumber(msg);
+      this.queues[queueNum].enqueue(msg);
+    } else {
+      this.addToSequences(msg);
+      this.addSequenceToQueue(msg);
     }
-    this.queues[queueNum].enqueue(msg);
   }
 
   /**
-   * Takes a queue number and returns a message
+   * Takes a queue number and returns from corresponding queue
    *
    * @param {Number} queueNumber
    * @returns {Object} (JSON message)
@@ -45,7 +51,47 @@ class MessageDeliveryService {
   next(queueNumber) {
     const queue = this.queues[queueNumber];
     if (queue.isEmpty()) throw `There is nothing in in queue ${queueNumber}`;
-    return queue.dequeue();
+    const msg = queue.dequeue();
+    if (msg._sequence !== undefined) this.checkMaxPartNum(msg);
+    return msg;
+  }
+
+  /**
+   * Adds message to sequences store and alters max part number
+   * in the store if part number is greater than the current max
+   *
+   * @param {Object} msg
+   * @memberof MessageDeliveryService
+   */
+  addToSequences(msg) {
+    const sequenceId = msg._sequence;
+    const part = msg._part;
+    if (this.sequences[sequenceId] === undefined) {
+      this.sequences[sequenceId] = { nextPartNum: 0, maxPartNum: 0 };
+    }
+    const sequence = this.sequences[sequenceId];
+    if (part === 0) sequence.queueNum = getQueueNumber(msg);
+    if (sequence.maxPartNum < part) sequence.maxPartNum = part;
+    sequence[part] = msg;
+  }
+
+  /**
+   * Adds contiguous messages to the correct queue number and deletes
+   * messages from sequences storage
+   *
+   * @param {Object} msg
+   * @memberof MessageDeliveryService
+   */
+  addSequenceToQueue(msg) {
+    const sequenceId = msg._sequence;
+    const sequence = this.sequences[sequenceId];
+    const { queueNum } = sequence;
+    let partNum = sequence.nextPartNum;
+    while (sequence[partNum] !== undefined) {
+      this.queues[queueNum].enqueue(sequence[partNum]);
+      delete sequence[partNum];
+      sequence.nextPartNum = ++partNum;
+    }
   }
 
   /**
@@ -55,32 +101,30 @@ class MessageDeliveryService {
    * @param {String} key
    * @memberof MessageDeliveryService
    */
-  alterMessage(msg, key) {
-    const value = msg[key];
-    if (typeof value === 'string') {
-      if (key[0] !== '_' && value.includes('Nebula')) reverseStr(msg, key);
-      if (key === '_hash') createHashValue(msg);
-    } else if (key[0] !== '_' && Number.isInteger(value)) {
-      msg[key] = bitwiseNegate(value);
+  alterMessage(msg) {
+    for (let key in msg) {
+      const value = msg[key];
+      if (typeof value === 'string') {
+        if (key[0] !== '_' && value.includes('Nebula')) reverseStr(msg, key);
+        if (key === '_hash') createHashValue(msg);
+      } else if (key[0] !== '_' && Number.isInteger(value)) {
+        msg[key] = bitwiseNegate(value);
+      }
     }
   }
 
   /**
-   * Determines which queue to place message in depending on
-   * the current key being examined
+   * Deletes sequence from sequences if all parts have been dequeued
+   * (prevent memory leak)
    *
    * @param {Object} msg
-   * @param {String} key
-   * @returns {Number}
    * @memberof MessageDeliveryService
    */
-  delegateQueue(msg, key) {
-    const value = msg[key];
-    if (key === '_special') return 0;
-    if (key === '_hash') return 1;
-    if (key[0] !== '_' && value.includes('alubeN')) return 2;
-    if (key[0] !== '_' && Number.isInteger(value)) return 3;
-    return 4;
+  checkMaxPartNum(msg) {
+    const part = msg._part;
+    const sequenceId = msg._sequence;
+    const { maxPartNum } = this.sequences[sequenceId];
+    if (maxPartNum === part) delete this.sequences[sequenceId];
   }
 }
 
