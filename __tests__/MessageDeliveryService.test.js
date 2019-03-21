@@ -2,10 +2,11 @@ const Queue = require('queue-fifo');
 const { MessageDeliveryService } = require('../q/MessageDeliveryService');
 
 describe('MessageDeliveryService', () => {
-  let svc;
+  let svc, svc2;
 
   beforeEach(() => {
     svc = new MessageDeliveryService();
+    svc2 = new MessageDeliveryService();
   });
 
   it('should be defined', () => {
@@ -31,6 +32,47 @@ describe('MessageDeliveryService', () => {
     it('should be defined', () => {
       expect(svc.enqueue).toBeDefined();
       expect(typeof svc.enqueue).toBe('function');
+    });
+
+    it('should add message to the correct queue if there is no _sequence key', () => {
+      const msg1 = { _special: 'test' };
+      const msg2 = { _hash: 'test' };
+      const msg3 = { val: 'Nebula' };
+      const msg4 = { val: 3 };
+      const msg5 = { val: 3.4 };
+      const msg6 = { _val: 3.4 };
+      svc.enqueue(msg1);
+      svc.enqueue(msg2);
+      svc.enqueue(msg3);
+      svc.enqueue(msg4);
+      svc.enqueue(msg5);
+      svc2.enqueue(msg6);
+      const { queues } = svc;
+      expect(queues[0].peek()).toEqual(msg1);
+      expect(queues[1].peek()).toEqual(msg2);
+      expect(queues[2].peek()).toEqual(msg3);
+      expect(queues[3].peek()).toEqual(msg4);
+      expect(queues[4].peek()).toEqual(msg5);
+      expect(svc2.queues[4].peek()).toEqual(msg6);
+    });
+
+    it('should not add the message to the queue if there is there key of _sequence, _part is not 0, and previous parts have not been added to the queue', () => {
+      const msg1 = { _sequence: 'test', _part: 2, _special: 'test' };
+      const msg2 = { _sequence: 'test', _part: 1, _hash: 'test' };
+      const msg3 = { _sequence: 'test', _part: 3, val: 'Nebula' };
+      const msg4 = { _sequence: 'test', _part: 4, val: 3 };
+      const msg5 = { _sequence: 'test', _part: 5, val: 3.4 };
+      svc.enqueue(msg1);
+      svc.enqueue(msg2);
+      svc.enqueue(msg3);
+      svc.enqueue(msg4);
+      svc.enqueue(msg5);
+      const { queues } = svc;
+      expect(queues[0].isEmpty()).toBe(true);
+      expect(queues[1].isEmpty()).toBe(true);
+      expect(queues[2].isEmpty()).toBe(true);
+      expect(queues[3].isEmpty()).toBe(true);
+      expect(queues[4].isEmpty()).toBe(true);
     });
   });
 });
